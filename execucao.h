@@ -10,43 +10,38 @@
 
 #include"Controle.h"
 #include"funcoesAux.h"
+#include"interface.h"
 
 using namespace std;
 
 #define b32 bitset<32>
 
-//Funções para mostrar estado do sistema
-void mostrarEstado(int instrucaoAtual, int clock, int PC, b32 A, b32 B, b32 ALUOut, Controle controle)
+
+void mostraEstado(int instrucaoAtual, int clock, int PC, Controle controle,b32 registradores[]);
+void salvaEstado(int instrucaoAtual, int clock, int PC, Controle controle, b32 registradores[],b32 memoria[], ofstream& saida);
+
+
+
+//funcoes para manipilacao de arquivo e criacao de lista de instrucoes
+
+int numeroInstrucoes(ifstream& entrada)
 {
-    cout << "Instrucao: " << mostraInstrucao(instrucaoAtual) << endl;
-    cout << "Clock: " << clock << endl;
-    cout << "PC: " << PC << endl;
-    cout << "Registrador A: " << A.to_ulong() << endl;
-    cout << "Registrador B: " << B.to_ulong() << endl;
-    cout << "ALUOut: " << ALUOut.to_ulong() << endl;
-    //controle.displayEstadoControle();
+    string aux;
+    int cont = 0;
+    while(!entrada.eof())
+    {
+        getline(entrada,aux);
+        cont++;
+    }
+    return cont;
 }
-
-void mostraRegistradores(b32 registradores[])
-{
-    for(int i=0; i<32; i++)
-        if(registradores[i].to_ulong()!=0)
-            cout << i << ": " << registradores[i] << endl;
-    cout << endl;
-}
-
-void mostraMemoria(b32 memoria[])
-{
-    for(int i=0; i<256; i++)
-        cout << i << ": " << memoria[i] << endl;
-    cout << endl;
-}
-
-
-//
 
 void criaListaInstrucoes(ifstream& entrada,b32 lista[])
 {
+    //retornar ao inicio do arquivo
+    entrada.clear();
+    entrada.seekg(0);
+    //leitura do arquivo
     string linha;
     getline(entrada,linha);
 
@@ -65,23 +60,24 @@ void criaListaInstrucoes(ifstream& entrada,b32 lista[])
 }
 
 
-
 // execução de uma instrução individual
-int executaInstrucao(b32 instrucao, Controle controle, int& PC,
+int executaInstrucao(b32 instrucao, Controle& controle, int& PC,
                     b32 registradores[], b32 memoria[],
-                    b32& A, b32& B,b32 regInstrucoes,b32 regDados,b32& ALUOut)
+                    b32& A, b32& B,b32 regInstrucoes,b32 regDados,b32& ALUOut,
+                    ofstream& saida)
 {
-
 
     int instrucaoAtual = -1; // Instrucao desconhecida
     int clock = 0;  // clock reseta toda execução
     
 
 
-    cout << "****************************************\n";
-    cout << "Etapa: INICIO DA EXECUCAO\n";
-    mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-    cout << "\n****************************************\n";
+    cout << "**************************************** " << endl;
+    cout << "Etapa: INICIO DA EXECUCAO " << endl;
+    saida << "Etapa: INICIO DA EXECUCAO " << endl;
+    mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+    salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+    cout << "\n**************************************** " << endl;
 
 
 // BUSCA DA INSTRUCAO
@@ -108,10 +104,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
 
     clock ++; //termina ciclo de clock
-    cout << "****************************************\n";
-    cout << "Etapa: BUSCA DA INSTRUCAO\n";
-    mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-    cout << "\n****************************************\n";
+    cout << "**************************************** " << endl;
+    cout << "Etapa: BUSCA DA INSTRUCAO " << endl;
+    saida << "Etapa: BUSCA DA INSTRUCAO " << endl;
+    mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+    salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+    cout << "\n**************************************** " << endl;
 
     
 
@@ -141,10 +139,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
 
     clock ++; //termina ciclo de clock
-    cout << "****************************************\n";
-    cout << "Etapa: DECODIFICACAO\n";
-    mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-    cout << "\n****************************************\n";
+    cout << "**************************************** " << endl;
+    cout << "Etapa: DECODIFICACAO " << endl;
+    saida << "Etapa: DECODIFICACAO " << endl;
+    mostraEstado(instrucaoAtual, clock, PC, controle,registradores); 
+    salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+    cout << "\n**************************************** " << endl;
 
 
     
@@ -162,10 +162,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
         clock ++; //termina ciclo de clock
 
-        cout << "\n****************************************\n";
-        cout << "EXECUCAO INSTRUCAO TIPO-R\n";
-        mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-        cout << "\n****************************************\n";
+        cout << "\n**************************************** " << endl;
+        cout << "Etapa: EXECUCAO INSTRUCAO TIPO-R " << endl;
+        saida << "Etapa: EXECUCAO INSTRUCAO TIPO-R" << endl;
+        mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+        salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+        cout << "\n**************************************** " << endl;
 
 
 
@@ -183,10 +185,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
 
         clock ++; //termina ciclo de clock
-        cout << "\n****************************************\n";
-        cout << "CONCLUSAO DA INSTRUCAO TIPO-R\n";
-        mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-        cout << "\n****************************************\n";
+        cout << "\n**************************************** " << endl;
+        cout << "Etapa: CONCLUSAO DA INSTRUCAO TIPO-R " << endl;
+        saida << "Etapa: CONCLUSAO INSTRUCAO TIPO-R " << endl;
+        mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+        salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+        cout << "\n**************************************** " << endl;
 
         
 
@@ -202,10 +206,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
         clock++;
 
-        cout << "\n****************************************\n";
-        cout << "EXECUCAO INSTRUCAO TIPO-R\n";
-        mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-        cout << "\n****************************************\n";
+        cout << "\n**************************************** " << endl;
+        cout << "Etapa: EXECUCAO INSTRUCAO TIPO-R " << endl;
+        saida << "Etapa: EXECUCAO INSTRUCAO TIPO-R " << endl;
+        mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+        salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+        cout << "\n**************************************** " << endl;
 
 
 
@@ -220,10 +226,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
     
 
         clock ++; //termina ciclo de clock
-        cout << "\n****************************************\n";
-        cout << "CONCLUSAO DA INSTRUCAO TIPO-R\n";
-        mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-        cout << "\n****************************************\n";
+        cout << "\n**************************************** " << endl;
+        cout << "Etapa: CONCLUSAO DA INSTRUCAO TIPO-R " << endl;
+        saida << "Etapa: CONCLUSAO DA INSTRUCAO TIPO-R " << endl;
+        mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+        salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+        cout << "\n**************************************** " << endl;
 
         
 
@@ -243,10 +251,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
         
         clock++; //final do ciclo de clock    
 
-        cout << "\n****************************************\n";
-        cout << "COMPUTAR ENDERECO DE MEMORIA  " << extendido << endl ;
-        mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-        cout << "\n****************************************\n";
+        cout << "\n**************************************** " << endl;
+        cout << "Etapa: COMPUTAR ENDERECO DE MEMORIA  " << extendido << endl ;
+        saida << "Etapa: COMPUTAR ENDERECO DE MEMORIA  " << extendido << endl ;
+        mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+        salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+        cout << "\n**************************************** " << endl;
 
         
 
@@ -263,10 +273,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
             clock++; //final do ciclo de clock
 
-            cout << "\n****************************************\n";
-            cout << "ACESSO A MEMORIA \n";
-            mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-            cout << "\n****************************************\n";
+            cout << "\n**************************************** " << endl;
+            cout << "Etapa: ACESSO A MEMORIA  " << endl;
+            saida << "Etapa: ACESSO A MEMORIA  " << endl;
+            mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+            salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+            cout << "\n**************************************** " << endl;
 
             
 
@@ -282,10 +294,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
             clock++; //final do ciclo de clock
 
-            cout << "\n****************************************\n";
-            cout << "COMPLETAR LEITURA \n";
-            mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-            cout << "\n****************************************\n";
+            cout << "\n**************************************** " << endl;
+            cout << "Etapa: COMPLETAR LEITURA  " << endl;
+            saida<< "Etapa: COMPLETAR LEITURA  " << endl;
+            mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+            salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+            cout << "\n**************************************** " << endl;
 
             
                                     
@@ -306,10 +320,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
                   
             clock++; //final do ciclo de clock
 
-            cout << "\n****************************************\n";
-            cout << "ACESSO A MEMORIA \n";
-            mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-            cout << "\n****************************************\n";
+            cout << "\n**************************************** " << endl;
+            cout << "Etapa: ACESSO A MEMORIA  " << endl;
+            saida << "Etapa: ACESSO A MEMORIA  " << endl;
+            mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+            salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+            cout << "\n**************************************** " << endl;
 
             
 
@@ -326,10 +342,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
             clock++; //final do ciclo de cloc
 
-            cout << "\n****************************************\n";
-            cout << "ESCREVE RESULTADO NO REGISTRADOR \n";
-            mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-            cout << "\n****************************************\n";
+            cout << "\n**************************************** " << endl;
+            cout << "Etapa: ESCREVE RESULTADO NO REGISTRADOR  " << endl;
+            saida << "Etapa: ESCREVE RESULTADO NO REGISTRADOR  " << endl;
+            mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+            salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+            cout << "\n**************************************** " << endl;
 
         
                                     
@@ -354,11 +372,13 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
             clock++; //final do ciclo de clock
 
-            cout << "\n****************************************\n";
-            cout << "COMPLETANDO OPERACAO DE DESVIO \n";
-            mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
+            cout << "\n**************************************** " << endl;
+            cout << "Etapa: COMPLETANDO OPERACAO DE DESVIO  " << endl;
+            saida << "Etapa: COMPLETANDO OPERACAO DE DESVIO  " << endl;
+            mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+            salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
             cout << "Zero: " << Zero << endl;
-            cout << "\n****************************************\n";
+            cout << "\n**************************************** " << endl;
 
             
 
@@ -385,10 +405,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 
             clock++; //final do ciclo de clock
 
-            cout << "\n****************************************\n";
-            cout << "COMPLETANDO OPERACAO DE DESVIO \n";
-            mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-            cout << "\n****************************************\n";
+            cout << "\n**************************************** " << endl;
+            cout << "Etapa: COMPLETANDO OPERACAO DE DESVIO  " << endl;
+            saida << "Etapa: COMPLETANDO OPERACAO DE DESVIO  " << endl;
+            mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+            salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+            cout << "\n**************************************** " << endl;
 
             
 
@@ -426,10 +448,12 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
         
             clock++; //final do ciclo de clock
 
-            cout << "\n****************************************\n";
-            cout << "COMPLETANDO OPERACAO DE JUMP \n";
-            mostrarEstado(instrucaoAtual, clock, PC, A, B, ALUOut, controle);
-            cout << "\n****************************************\n";
+            cout << "\n**************************************** " << endl;
+            cout << "Etapa: COMPLETANDO OPERACAO DE JUMP  " << endl;
+            saida << "Etapa: COMPLETANDO OPERACAO DE JUMP  " << endl;
+            mostraEstado(instrucaoAtual, clock, PC, controle,registradores);
+            salvaEstado(instrucaoAtual,clock,PC,controle,registradores,memoria,saida);
+            cout << "\n**************************************** " << endl;
 
             
     }
@@ -438,6 +462,7 @@ int executaInstrucao(b32 instrucao, Controle controle, int& PC,
 }
 
 
+//executa todas as instruções até encontrar a instrução 0
 
 
 #endif

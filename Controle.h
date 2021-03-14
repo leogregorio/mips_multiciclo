@@ -2,6 +2,10 @@
 #define CONTROLE_H
 
 #include<iostream>
+#include<sstream>
+#include<fstream>
+#include<bitset>
+
 using namespace std;
 
 class Controle
@@ -42,7 +46,7 @@ public:
 
     void displayEstadoControle()
     {
-        cout << "\n*CONTROLE:*"
+        cout << "\n- Controle:"
         << endl << "- PCWrite: "        << PCWrite
         << endl << "- IorD: "         << IorD 
         << endl << "- MemtoReg: "     << MemtoReg
@@ -53,9 +57,27 @@ public:
         << endl << "- MemRead: "      << MemRead
         << endl << "- RegDst: "       << RegDst
         << endl << "- ALUSrcA: "      << ALUSrcA
-        << endl << "- ALUSrcB: "      << ALUSrcB
-        << endl << "- ALUOp: "        << ALUOp
-        << endl << "- PCSource: "     << PCSource;
+        << endl << "- ALUSrcB: "      << bitset<2>(ALUSrcB)
+        << endl << "- ALUOp: "        << bitset<2>(ALUOp)
+        << endl << "- PCSource: "     << bitset<2>(PCSource) << endl;
+    }
+
+    void salvaEstadoControle(ofstream& saida)
+    {
+        saida << "\n- Controle:"
+        << endl << "- PCWrite: "        << PCWrite
+        << endl << "- IorD: "         << IorD 
+        << endl << "- MemtoReg: "     << MemtoReg
+        << endl << "- IRWrite: "      << IRWrite
+        << endl << "- PCWriteCond: "  << PCWriteCond
+        << endl << "- PCWrite: "      << PCWrite
+        << endl << "- MemWrite: "     << MemWrite
+        << endl << "- MemRead: "      << MemRead
+        << endl << "- RegDst: "       << RegDst
+        << endl << "- ALUSrcA: "      << ALUSrcA
+        << endl << "- ALUSrcB: "      << bitset<2>(ALUSrcB)
+        << endl << "- ALUOp: "        << bitset<2>(ALUOp)
+        << endl << "- PCSource: "     << bitset<2>(PCSource) << endl;
     }
 
     void resetarControle()

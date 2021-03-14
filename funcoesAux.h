@@ -285,19 +285,36 @@ void resetarMemoria(b32 memoria[])
 {
     for(int i=0; i<32; i++)
         memoria[i].reset();
+    cout << "Memoria resetada." << endl;
 }
 
 void resetarRegistradores(b32 registradores[])
 {
     for(int i=0; i<32; i++)
         registradores[i].reset();
+
+    cout << "Registradores resetados." << endl;
 }
 
-void resetarTudo(b32 memoria[], b32 registradores[], Controle controle)
+
+void resetarAuxiliares(b32 A, b32 B, b32 regDados, b32 regInstrucoes)
+{
+    A = b32(0);
+    B = b32(0);
+    regDados = b32(0);
+    regInstrucoes = b32(0);
+    cout << "Auxiliares resetados." << endl;
+}
+
+void resetarTudo(b32 memoria[], b32 registradores[], Controle controle, b32 A, b32 B, b32 regDados, b32 regInstrucoes)
 {
     resetarRegistradores(registradores);
     resetarMemoria(memoria);
     controle.resetarControle();
+    A = b32(0);
+    B = b32(0);
+    regDados = b32(0);
+    regInstrucoes = b32(0);
 }
 
 
