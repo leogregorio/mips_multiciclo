@@ -4,6 +4,7 @@
 
 #include<iostream>
 #include<bitset>
+#include<string>
 #include"Controle.h"
 
 using namespace std;
@@ -23,21 +24,21 @@ bitset<6> getOp(b32 instrucao)
 bitset<5> getRs(b32 instrucao)
 {
     bitset<32> aux = instrucao << 6;
-    aux = aux >> 26;
+    aux = aux >> 27;
     return bitset<5>(aux.to_ulong());
 }
 
 bitset<5> getRt(b32 instrucao)
 {
     bitset<32> aux = instrucao << 11;
-    aux = aux >> 26;
+    aux = aux >> 27;
     return bitset<5>(aux.to_ulong());
 }
 
 bitset<5> getRd(b32 instrucao)
 {
     bitset<32> aux = instrucao << 16;
-    aux = aux >> 26;
+    aux = aux >> 27;
     return bitset<5>(aux.to_ulong());
 }
 
@@ -54,6 +55,13 @@ bitset<6> getFunct(b32 instrucao)
 bitset<26> getJump(b32 instrucao)
 {
     return bitset<26>(instrucao.to_ulong());
+}
+
+bitset<5> getShamt(b32 instrucao)
+{
+    bitset<32> aux = instrucao << 16;
+    aux = aux >> 27;
+    return bitset<5>(aux.to_ulong());
 }
 
 
@@ -83,6 +91,18 @@ b32 extSinal(bitset<16> offset)
       aux.set(i);
   return aux;
 }
+
+//funcao que transoforma umas string de 0's e 1's em um bitset de 32 bits
+b32 stringToBitset(string instrucao)
+{
+  b32 aux;
+  for(int i=0; i<32; i++)
+    if(instrucao[i] == '1')
+      aux.set(31-i);
+  return aux;
+}
+
+
 
 //funcao que recebe os campos da instrucao em questao 
 //e retorna a instrucao a ser realizada de acordo com a codificacao:
@@ -162,7 +182,7 @@ switch(op)
 {
     case 8:
         return 6; //addi
-    case 23:    
+    case 35:    
         return 7; //lw
     case 43:
         return 8; //sw
@@ -214,9 +234,13 @@ string mostraInstrucao(int instrucao)
     }
 }
 
-int converteLinha(string linha)
+b32 converteLinha(string instrucao)
 {
-    return stoi(linha,0,2);
+    b32 aux;
+    for(int i=0; i<32; i++)
+        if(instrucao[i] == '1')
+            aux.set(31-i);
+    return aux;
 }
 
 int ALUresult(int instrucaoAtual, Controle controle, int A, int B)
